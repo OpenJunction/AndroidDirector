@@ -1,0 +1,122 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="edu.stanford.prpl.junction.applaunch"
+      android:versionCode="1"
+      android:versionName="1.0"> 
+    <application android:icon="@drawable/logo" android:label="@string/app_name"> 
+        <activity android:name=".ActivityDirector"
+                  android:label="@string/app_name"> 
+            <intent-filter> 
+                <action android:name="android.intent.action.MAIN" /> 
+                <category android:name="android.intent.category.LAUNCHER" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".ActivityBootstrap"
+                  android:label="@string/app_name"
+                  android:icon="@drawable/logo">
+                  <intent-filter>
+                    <action android:name="junction.intent.action.BOOTSTRAP" />
+                  </intent-filter>
+        </activity> 
+        
+        <activity android:name=".CastingDirector"
+                  android:label="Cast an activity"> 
+            <intent-filter> 
+                <action android:name="junction.intent.action.CAST" /> 
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".ActivityScan"
+                  android:label="Scan for activities"> 
+            <intent-filter> 
+                <action android:name="junction.intent.action.join.SCAN" /> 
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".JoinNearby"
+                  android:label="Join nearby activities"> 
+            <intent-filter> 
+                <action android:name="junction.intent.action.join.LOCAL" /> 
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".Invite"
+                  android:label="Invite"> 
+            <intent-filter> 
+                <action android:name="junction.intent.action.invite.ANY" /> 
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".InviteQR"
+                  android:label="InviteQR"> 
+            <intent-filter> 
+                <action android:name="junction.intent.action.invite.QR" /> 
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".InviteScan"
+                  android:label="InviteScan"> 
+            <intent-filter> 
+                <action android:name="junction.intent.action.invite.SCAN" /> 
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".SMSSender"
+                  android:label="SMSSender"> 
+            <intent-filter> 
+                <action android:name="junction.intent.action.invite.TEXT" /> 
+                <category android:name="android.intent.category.DEFAULT" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".URIHandler"
+                  android:label="URIHandler"> 
+            <intent-filter> 
+            	<action android:name="android.intent.action.VIEW"></action>                                 
+       			<category android:name="android.intent.category.DEFAULT"></category>                        
+        		<category android:name="android.intent.category.BROWSABLE"></category>                      
+                <data android:scheme="junction" /> 
+            </intent-filter> 
+        </activity> 
+        
+        <activity android:name=".StartActivity"> 
+        </activity> 
+ 
+	<receiver android:name=".SMSReceiver"
+		android:enabled="true"> 
+		<intent-filter> 
+			<action android:name="android.provider.Telephony.SMS_RECEIVED" /> 
+		</intent-filter> 
+	</receiver> 
+	
+	<!-- This service contains a receiver with a dynamically-defined IntentFilter -->
+	<service android:name="edu.stanford.junction.remoteintents.RemoteIntentManager">
+	</service>
+	
+	<receiver android:name="edu.stanford.junction.remoteintents.RemoteIntentReceiver">
+		<intent-filter>
+			<action android:name="junction.remoteintent.INSTALL_FILTER"/>
+			<category android:name="junction.remoteintent.REMOTABLE" />
+		</intent-filter>
+	</receiver>
+	
+	
+    </application> 
+    <uses-sdk android:minSdkVersion="4" /> 
+    
+    
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission> 
+	<uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission> 
+	<uses-permission android:name="android.permission.SEND_SMS"></uses-permission> 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+      
+<uses-permission android:name="android.permission.BLUETOOTH"></uses-permission> 
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission> 
+</manifest> 

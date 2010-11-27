@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+
+<LinearLayout
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingTop="30dip"
+    android:paddingBottom="30dip"
+    android:paddingLeft="30dip"
+    android:paddingRight="30dip"
+    >
+
+<Button android:id="@+id/button_xmpp" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:text="Use XMPP" android:drawableLeft="@android:drawable/ic_menu_share" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
+</Button>
+
+
+<Button android:id="@+id/button_bluetooth" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:text="Use Bluetooth" android:drawableLeft="@drawable/share_menu_item" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
+</Button>
+
+</LinearLayout>
+</LinearLayout>

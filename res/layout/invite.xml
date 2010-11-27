@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+
+<LinearLayout
+	android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingTop="30dip"
+    android:paddingBottom="30dip"
+    android:paddingLeft="30dip"
+    android:paddingRight="30dip"
+    >
+
+<LinearLayout 
+	android:orientation="horizontal"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	>
+
+<Button android:id="@+id/button_showcode" 
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content" 
+		android:text="Present" 
+		android:drawableLeft="@drawable/share_menu_item" 
+		android:textSize="20sp" 
+		android:paddingBottom="10dip" 
+		android:paddingTop="10dip">
+</Button>
+
+<Button android:id="@+id/button_scan" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:text="Scan" 
+		android:drawableLeft="@android:drawable/ic_menu_camera" 
+		android:textSize="20sp" 
+		android:paddingBottom="10dip" 
+		android:paddingTop="10dip">
+</Button>
+
+</LinearLayout>
+
+<Button android:id="@+id/button_sms" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:text="Text" 
+		android:drawableLeft="@android:drawable/ic_menu_send" 
+		android:textSize="20sp" 
+		android:paddingBottom="10dip" 
+		android:paddingTop="10dip">
+</Button>
+ <!-- 
+ <Button android:id="@+id/button_remote" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:text="Open on Device" android:drawableLeft="@android:drawable/ic_menu_slideshow" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
+</Button>
+
+<Button android:id="@+id/button_remote" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:text="Other..." android:drawableLeft="@android:drawable/ic_menu_share" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
+</Button>
+-->
+</LinearLayout>
+</LinearLayout>
