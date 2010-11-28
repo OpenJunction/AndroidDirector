@@ -1,6 +1,10 @@
 package edu.stanford.prpl.junction.applaunch;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.stanford.junction.provider.bluetooth.BluetoothSwitchboardConfig;
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -15,7 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -24,6 +27,7 @@ public class JoinNearby extends ListActivity {
 	private BluetoothAdapter mBtAdapter;
 	private int REQUEST_ENABLE_BT = 424534;
 	private ArrayAdapter<String> mListAdapter;
+	private List<String> mDeviceAddresses;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,8 @@ public class JoinNearby extends ListActivity {
 		// ListView bindings
         ListView listView = (ListView)findViewById(android.R.id.list);
         mListAdapter = new ArrayAdapter<String>(this, R.layout.bt_device_name);
+        mDeviceAddresses = new ArrayList<String>();
+        
         setListAdapter(mListAdapter);
         listView.setOnItemClickListener(mOnItemClickListener);
         
@@ -95,10 +101,14 @@ public class JoinNearby extends ListActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getName() != null && device.getName().startsWith("junction://")) {
+                
+                // TODO: separate junction:// beacons from devices.
+                // TODO: can we see if a device supports our UUID?
+                //if (device.getName() != null && device.getName().startsWith("junction://")) {
                 	// TODO: look up friendlyName and other information
                 	mListAdapter.add(device.getName());
-                }
+                	mDeviceAddresses.add(device.getAddress());
+                //}
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 
             }
@@ -106,11 +116,20 @@ public class JoinNearby extends ListActivity {
     };
     
     private final OnItemClickListener mOnItemClickListener = new OnItemClickListener() {
-    	public void onItemClick(AdapterView<?> av, View v, int arg2,
-    			long arg3) {
+    	public void onItemClick(AdapterView<?> av, View v, int pos,
+    			long id) {
     		
     		mBtAdapter.cancelDiscovery();
-    		String jxInvite = ((TextView) v).getText().toString();
+    		
+    		String jxInvite;
+    		String txt = ((TextView) v).getText().toString();
+    		if (txt.startsWith("junction://")) {
+    			jxInvite = txt;
+    		} else {
+    			// TODO: can we check to see if the app UUID is supported?
+    			jxInvite = "junction://" + mDeviceAddresses.get(pos) + "/" + BluetoothSwitchboardConfig.APP_UUID + "#bt";
+    		}
+
     		try {
 	    		URI act = new URI(jxInvite);
 	        	ActivityDirector.createJunction(JoinNearby.this, act);
