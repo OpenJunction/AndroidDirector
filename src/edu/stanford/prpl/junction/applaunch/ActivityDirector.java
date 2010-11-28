@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import edu.stanford.junction.JunctionException;
 import edu.stanford.junction.JunctionMaker;
+import edu.stanford.junction.SwitchboardConfig;
 import edu.stanford.junction.android.AndroidJunctionMaker;
 import edu.stanford.junction.api.activity.ActivityScript;
 import edu.stanford.junction.provider.xmpp.XMPPSwitchboardConfig;
@@ -138,16 +139,7 @@ public class ActivityDirector extends Activity {
 	
 	protected static void createJunction(Activity parentActivity, URI uri) {
 		// URI: junction://my.switchboard.com/sessionID?role=user
-		String switchboard = uri.getHost();
-		String sessionID = uri.getPath().substring(1);
-		
-		JSONObject json = new JSONObject();
-		try {
-			// should probably just pass the URI
-			json.put("switchboard", switchboard);
-			json.put("sessionID", sessionID);
-		} catch (Exception e) {}
-		
+
 		String openerPackage = parentActivity.getIntent().getStringExtra("package");
 		// TODO: reconcile differences between package from intent, from URI, and in activityDesc
 		
@@ -174,11 +166,10 @@ public class ActivityDirector extends Activity {
     	}
 		
 		// look up activity information from Junction
-		XMPPSwitchboardConfig cfg = new XMPPSwitchboardConfig();
-		cfg.setHost(uri.getHost());
+		SwitchboardConfig cfg = AndroidJunctionMaker.getDefaultSwitchboardConfig(uri);
 		ActivityScript ad = null;
 		try {
-			ad = JunctionMaker.getInstance(cfg).getActivityScript(uri);
+			ad = AndroidJunctionMaker.getInstance(cfg).getActivityScript(uri);
 			if (ad == null) {
 				Log.w("junction","Could not retrieve activity script");
 				Toast.makeText(parentActivity, "Failed to retrieve activity script.", Toast.LENGTH_SHORT).show();
@@ -193,8 +184,7 @@ public class ActivityDirector extends Activity {
 		}
 		
 		
-		if (ad.getActivityID().equals(JunctionMaker.DIRECTOR_ACTIVITY)) {
-
+		if (JunctionMaker.DIRECTOR_ACTIVITY.equals(ad.getActivityID())) {
 			CastingDirector.sLastEnvironment = uri;
 			
 			Toast.makeText(parentActivity, "Set your environment.", Toast.LENGTH_SHORT).show();
@@ -215,8 +205,7 @@ public class ActivityDirector extends Activity {
 		// activity description info.
 		JSONObject gross = ad.getJSON();
 		try {
-			gross.put("switchboard", uri.getHost());
-			gross.put("sessionID",uri.getPath().substring(1));
+			gross.put("invitationURI", uri.toString());
 			String role = null;
 			if (uri.getQuery()!=null && uri.getQuery().contains("role=")) {
 				role = uri.getQuery().substring(uri.getQuery().indexOf("role=")+5);
@@ -251,14 +240,7 @@ public class ActivityDirector extends Activity {
 			// sessionID <required>
 			// role <optional>
 			
-			
-			String invitationString = "junction://" + invitation.getString("switchboard") 
-									+ "/" + invitation.getString("sessionID"); 
-			
-			if (invitation.has("role")) {
-				invitationString += "?role=" + invitation.getString("role");
-			}
-			
+			String invitationString = invitation.getString("invitationURI"); 
 			URI invitationURI = new URI(invitationString);
 			
 			// TODO: look up from XMPP room description if not available here
@@ -377,12 +359,6 @@ public class ActivityDirector extends Activity {
 	    			parentActivity.startActivity(intent);
 	    		}
 	    	} else if (bestPackage != null) {
-	    		/*
-	    		Intent launchIntent = new Intent("junction.intent.action.JOIN");
-    			launchIntent.putExtra("junctionVersion", 1);
-    			launchIntent.putExtra("activityDescriptor", invitation.toString());
-    			launchIntent.putExtra("invitationURI", invitationString);
-    			*/
     			Intent launchIntent = AndroidJunctionMaker.getIntentForActivityJoin(invitationURI);
     			if (IntentLauncher.launch(parentActivity,
     					launchIntent,

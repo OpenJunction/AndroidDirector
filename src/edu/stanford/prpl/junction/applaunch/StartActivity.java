@@ -28,7 +28,9 @@ import android.widget.Toast;
  *
  */
 public class StartActivity extends Activity {
-	private static final int REQUEST_ENABLE_BT = 1;
+	private static final int REQUEST_ENABLE_BT_HUB = 1;
+	private static final int REQUEST_ENABLE_BT_DIRECT = 2;
+	private static final int REQUEST_ENABLE_BT_DISCO = 3;
 	private List<Map<String,?>>  mAppList;
 	private int mAppIndex  = -1;
 	@Override
@@ -38,6 +40,7 @@ public class StartActivity extends Activity {
 		// connectivity options
 		setContentView(R.layout.choose_carrier);
 		findViewById(R.id.button_xmpp).setOnClickListener(mXmppConnector);
+		findViewById(R.id.button_bluetooth_hub).setOnClickListener(mBluetoothHubConnector);
 		findViewById(R.id.button_bluetooth).setOnClickListener(mBluetoothConnector);
 		
 		
@@ -64,6 +67,13 @@ public class StartActivity extends Activity {
 				}
 			})
 			.setTitle("Start P2P session")
+			.setOnCancelListener(new DialogInterface.OnCancelListener() {
+				
+				public void onCancel(DialogInterface arg0) {
+					finish();
+					return;
+				}
+			})
 			.create().show();
 	}
 	
@@ -87,10 +97,10 @@ public class StartActivity extends Activity {
 		}
 	};
 	
-	
 	/**
-	 * The Bluetooth connectivity is currently bootstrapped with a QR code.
-	 * This code is experimental.
+	 * Bluetooth connectivity with this device as a hub.
+	 * Prompts the user to put the phone in discoverable
+	 * mode, which is optional.
 	 */
 	private View.OnClickListener mBluetoothConnector = new View.OnClickListener() {
 		public void onClick(View arg0) {
@@ -98,7 +108,25 @@ public class StartActivity extends Activity {
 			
 			if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
 	            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT_DIRECT);
+	            return;
+	        }
+			
+			doBtDisco();
+		}
+	};
+	
+	/**
+	 * The Bluetooth hub connectivity is currently bootstrapped with a QR code.
+	 * This code is experimental.
+	 */
+	private View.OnClickListener mBluetoothHubConnector = new View.OnClickListener() {
+		public void onClick(View arg0) {
+			if (mAppIndex == -1) return;
+			
+			if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
+	            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT_HUB);
 	            return;
 	        }
 			
@@ -106,10 +134,31 @@ public class StartActivity extends Activity {
 		}
 	};
 	
+	private void doBtDisco() {
+		 Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+	     startActivityForResult(i, REQUEST_ENABLE_BT_DISCO);
+	}
+	
+	private void doBtHub() {
+		ResolveInfo info = (ResolveInfo) mAppList.get(mAppIndex).get("resolveInfo");
+		Intent launch = new Intent(AndroidJunctionMaker.Intents.ACTION_JOIN);
+		launch.setPackage(info.activityInfo.packageName);
+		
+		BluetoothSwitchboardConfig config = new BluetoothSwitchboardConfig();
+		AndroidJunctionMaker jm = AndroidJunctionMaker.getInstance(config);
+		URI invitation = jm.generateSessionUri(); // switchboard set to this device's mac.
+		
+		Intent intentForActivity = AndroidJunctionMaker.getIntentForActivityJoin(invitation);
+		intentForActivity.addCategory(Intents.CATEGORY_BOOTSTRAP);
+		intentForActivity.setClassName(info.activityInfo.packageName, info.activityInfo.name);
+		startActivity(intentForActivity);
+		finish();
+	}
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		
-		if (requestCode == REQUEST_ENABLE_BT) {
+		if (requestCode == REQUEST_ENABLE_BT_HUB) {
 			if (resultCode == Activity.RESULT_OK) {
 				startQRScan();
 			} else {
@@ -118,6 +167,27 @@ public class StartActivity extends Activity {
 			return;
 		}
 
+		if (requestCode == REQUEST_ENABLE_BT_DIRECT) {
+			if (resultCode == Activity.RESULT_OK) {
+				doBtDisco();
+			} else {
+				
+			}
+			return;
+		}
+		
+		if (requestCode == REQUEST_ENABLE_BT_DISCO) {
+			if (resultCode > 0) {
+				Toast.makeText(StartActivity.this,
+						"Discoverable for " + resultCode + " seconds.", Toast.LENGTH_SHORT).show();
+			} else {
+				
+			}
+			
+			doBtHub();
+			return;
+		}
+		
 		if (intent != null && ActivityScan.SCAN_ACTION.equals(intent.getAction())) {
 			if (resultCode == Activity.RESULT_OK) {
 		        String contents = intent.getStringExtra("SCAN_RESULT");
