@@ -22,17 +22,24 @@
 		android:text="Use XMPP" android:drawableLeft="@android:drawable/ic_menu_share" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
 </Button>
 
+<Button android:id="@+id/button_lan" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content" 
+		android:text="Use WiFi" android:drawableLeft="@android:drawable/ic_menu_compass" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
+</Button>
+
 <Button android:id="@+id/button_bluetooth" 
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" 
-		android:text="Use Bluetooth" android:drawableLeft="@android:drawable/ic_menu_call" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
-</Button>
+		android:text="Use Bluetooth" android:drawableLeft="@android:drawable/ic_menu_call" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip" 
+/>
 
 <Button android:id="@+id/button_bluetooth_hub" 
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" 
-		android:text="Use Bluetooth hub" android:drawableLeft="@drawable/share_menu_item" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip">
-</Button>
+		android:text="Use hub" android:drawableLeft="@drawable/share_menu_item" android:textSize="20sp" android:paddingBottom="10dip" android:paddingTop="10dip"
+/>
 
+ 
 </LinearLayout>
 </LinearLayout>
