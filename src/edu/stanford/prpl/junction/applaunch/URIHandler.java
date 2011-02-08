@@ -21,7 +21,7 @@ public class URIHandler extends Activity {
 		
 		
 		Log.d("junction","got URI: " + getIntent().getData());
-		Toast.makeText(getApplicationContext(), "URI: " + getIntent().getData().toString(), Toast.LENGTH_LONG).show();
+		//Toast.makeText(getApplicationContext(), "URI: " + getIntent().getData().toString(), Toast.LENGTH_LONG).show();
 		try {
 			URI uri = new URI(getIntent().getData().toString().trim());
 			ActivityDirector.createJunction(this, uri);

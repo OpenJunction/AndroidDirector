@@ -85,6 +85,16 @@
             </intent-filter> 
         </activity> 
         
+        <activity android:name=".AppManifestHandler"
+                  android:label="Junction"> 
+            <intent-filter> 
+            	<action android:name="android.intent.action.VIEW"></action>                                 
+       			<category android:name="android.intent.category.DEFAULT"></category>                        
+        		<category android:name="android.intent.category.BROWSABLE"></category>                      
+                <data android:mimeType="application/vnd.mobisocial-appmanifest" /> 
+            </intent-filter> 
+        </activity>
+        
         <activity android:name=".StartActivity"> 
         </activity> 
  
