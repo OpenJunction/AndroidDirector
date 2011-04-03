@@ -3,6 +3,9 @@ package edu.stanford.prpl.junction.applaunch;
 import java.net.URI;
 import java.util.Iterator;
 
+import mobisocial.nfc.Nfc;
+import mobisocial.nfc.Nfc.NdefHandler;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +25,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,11 +42,14 @@ import android.widget.Toast;
  *
  */
 public class ActivityDirector extends Activity {
-	
+	private Nfc mNfc;
+	public static final String TYPE_APPMANIFEST = "application/vnd.mobisocial-appmanifest";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		mNfc = new Nfc(this);
+		mNfc.addNdefHandler(mNdefHandler);
+
 		Intent rimIntent = new Intent(this,RemoteIntentManager.class);
 		startService(rimIntent);
 		
@@ -374,4 +382,36 @@ public class ActivityDirector extends Activity {
 			Toast.makeText(parentActivity, "Error joining activity.", Toast.LENGTH_SHORT).show();
 		}
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mNfc.onResume(this);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mNfc.onPause(this);
+	}
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		mNfc.onNewIntent(this, intent);
+	}
+	
+	NdefHandler mNdefHandler = new NdefHandler() {		
+		@Override
+		public int handleNdef(NdefMessage[] ndefMessages) {
+			NdefRecord record = ndefMessages[0].getRecords()[0];
+			String type = new String(record.getType());
+			if (TYPE_APPMANIFEST.equals(type)) {
+				Intent appIntent = new Intent(Intent.ACTION_VIEW);
+				appIntent.putExtra("content", record.getPayload());
+				appIntent.setClass(ActivityDirector.this, AppManifestHandler.class);
+				startActivity(appIntent);
+			}
+			return NDEF_CONSUME;
+		}
+	};
 }

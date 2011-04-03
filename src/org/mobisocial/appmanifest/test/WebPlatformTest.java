@@ -1,26 +1,25 @@
-package edu.stanford.mobisocial.appmanifest.test;
+package org.mobisocial.appmanifest.test;
 
 import java.util.Arrays;
 
-import edu.stanford.mobisocial.appmanifest.ApplicationManifest;
-import edu.stanford.mobisocial.appmanifest.Builder;
-import edu.stanford.mobisocial.appmanifest.platforms.AndroidPlatformReference;
-import edu.stanford.mobisocial.appmanifest.platforms.PlatformReference;
-import edu.stanford.mobisocial.appmanifest.platforms.WebPlatformReference;
+import org.mobisocial.appmanifest.ApplicationManifest;
+import org.mobisocial.appmanifest.Builder;
+import org.mobisocial.appmanifest.platforms.PlatformReference;
+import org.mobisocial.appmanifest.platforms.WebPlatformReference;
 
-public class ThreePlatformTest {
+
+public class WebPlatformTest {
 
 	public static void main(String... args) {
-		PlatformReference androidReference1 = new AndroidPlatformReference(10, "org.openjunction.wescribble", "");
-		PlatformReference androidReference2 = new AndroidPlatformReference(9, "org.openjunction.wescribble", "");
-		PlatformReference webReference = new WebPlatformReference("http://openjunction.org/demo/whiteboard");
+		PlatformReference webReference =
+			new WebPlatformReference("http://openjunction.org/demo/whiteboard?jx=junction://sb.openjunction.org/myt3sts3s5i0n");
 		ApplicationManifest manifest =
 			new Builder()
 				.setName("weScribble")
-				.addPlatformReference(androidReference1)
 				.addPlatformReference(webReference)
 				.create();
 		byte[] bytes = manifest.toByteArray();
+		
 		ApplicationManifest parsedManifest = new ApplicationManifest(bytes);
 		
 		System.out.println("Created application manifest of size " + bytes.length + " bytes.");

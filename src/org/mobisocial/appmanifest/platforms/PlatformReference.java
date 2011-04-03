@@ -1,4 +1,4 @@
-package edu.stanford.mobisocial.appmanifest.platforms;
+package org.mobisocial.appmanifest.platforms;
 
 public abstract class PlatformReference {
 	public abstract int getPlatformIdentifier();

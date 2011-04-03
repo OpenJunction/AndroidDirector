@@ -1,4 +1,4 @@
-package edu.stanford.mobisocial.appmanifest.platforms;
+package org.mobisocial.appmanifest.platforms;
 
 /**
  * A {@link PlatformReference} parsed from a byte array.

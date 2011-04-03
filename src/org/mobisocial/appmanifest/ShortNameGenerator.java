@@ -1,4 +1,4 @@
-package edu.stanford.mobisocial.appmanifest;
+package org.mobisocial.appmanifest;
 
 import java.nio.ByteBuffer;
 

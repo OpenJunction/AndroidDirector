@@ -1,6 +1,6 @@
-package edu.stanford.mobisocial.appmanifest.platforms;
+package org.mobisocial.appmanifest.platforms;
 
-import edu.stanford.mobisocial.appmanifest.ApplicationManifest;
+import org.mobisocial.appmanifest.ApplicationManifest;
 
 public class WebPlatformReference extends PlatformReference {
 	private String url;

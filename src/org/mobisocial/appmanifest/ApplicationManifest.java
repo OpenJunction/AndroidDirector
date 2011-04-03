@@ -1,17 +1,21 @@
-package edu.stanford.mobisocial.appmanifest;
+package org.mobisocial.appmanifest;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.stanford.mobisocial.appmanifest.platforms.ParsedPlatformReference;
-import edu.stanford.mobisocial.appmanifest.platforms.PlatformReference;
+import org.mobisocial.appmanifest.platforms.ParsedPlatformReference;
+import org.mobisocial.appmanifest.platforms.PlatformReference;
+
+import android.util.Log;
+
 
 public class ApplicationManifest {
+	public static final int MIME_MAGIC_NUMBER = 0x41504d46; // 'APMF'
 	public static final String MIME_TYPE = "application/vnd.mobisocial-appmanifest";
-	public static final int PLATFORM_WEB_GET = 0x57454200; // {'W', 'E', 'B', 0x00}
-	public static final int PLATFORM_WEB_INLINE = 0x57454201; // {'W', 'E', 'B', 0x01}
-	public static final int PLATFORM_ANDROID_PACKAGE = 0x414E4400; // {'A', 'N', 'D', 0x00}
+	public static final int PLATFORM_WEB_GET = 0x57454247; // 'WEBG'
+	public static final int PLATFORM_WEB_INLINE = 0x57454249; // 'WEBI'
+	public static final int PLATFORM_ANDROID_PACKAGE = 0x414e4450; // 'ANDP'
 	//public static final int PLATFORM_ANDROID_INTENT = 0x414E4401; // {'A', 'N', 'D', 0x01}
 	public static final int PLATFORM_SYMBIAN_PACKAGE = 0x53594D00; // {'S', 'Y', 'M', 0x00}
 	public static final int PLATFORM_IOS_PACKAGE = 0x694F5300; // {'i', 'O', 'S', 0x00i
@@ -39,7 +43,9 @@ public class ApplicationManifest {
 	}
 	
 	public byte[] toByteArray() {
+		// TODO: allocate correct size
 		ByteBuffer buffer = ByteBuffer.allocate(1024);
+		buffer.putInt(MIME_MAGIC_NUMBER);
 		buffer.putInt(mName.length());
 		buffer.put(mName.getBytes());
 		buffer.putInt(mPlatformReferences.size());
@@ -59,15 +65,25 @@ public class ApplicationManifest {
 	}
 	
 	public ApplicationManifest(byte[] source) {
+		Log.d("junction", "Parsing app manifest size " + source.length);
+		String b = "";
+		for (int i=0;i<source.length;i++) {
+			b += (char)source[i];
+		}
+		Log.d("junction", "its " + b);
 		ByteBuffer buffer = ByteBuffer.wrap(source);
-		
+		int magicNumber = buffer.getInt();
+		if (magicNumber != MIME_MAGIC_NUMBER) {
+			throw new IllegalArgumentException("Magic number not found. (" + magicNumber + " vs " + MIME_MAGIC_NUMBER + ")");
+		}
 		int nameLength = buffer.getInt();
 		byte[] nameBytes = new byte[nameLength];
 		buffer.get(nameBytes);
 		mName = new String(nameBytes);
 
 		int platformCount = buffer.getInt();
-		mPlatformReferences = new ArrayList<PlatformReference>();
+		Log.d("NfcService", "I HAVE " + platformCount);
+		mPlatformReferences = new ArrayList<PlatformReference>(platformCount);
 		for (int i = 0; i < platformCount; i++) {
 			int platformIdentifier = buffer.getInt();
 			int platformVersion = buffer.getInt();

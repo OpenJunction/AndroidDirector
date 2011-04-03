@@ -1,8 +1,8 @@
-package edu.stanford.mobisocial.appmanifest;
+package org.mobisocial.appmanifest;
 
 import java.util.LinkedList;
 
-import edu.stanford.mobisocial.appmanifest.platforms.PlatformReference;
+import org.mobisocial.appmanifest.platforms.PlatformReference;
 
 public class Builder {
 		ApplicationManifest mApplicationManifest;
