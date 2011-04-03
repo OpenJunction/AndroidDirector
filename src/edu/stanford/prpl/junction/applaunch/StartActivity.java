@@ -4,13 +4,19 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import edu.stanford.junction.SwitchboardConfig;
 import edu.stanford.junction.android.AndroidJunctionMaker;
 import edu.stanford.junction.provider.bluetooth.BluetoothSwitchboardConfig;
+import edu.stanford.junction.provider.jx.JXSwitchboardConfig;
 import edu.stanford.junction.provider.xmpp.XMPPSwitchboardConfig;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -28,7 +34,7 @@ import android.widget.Toast;
  *
  */
 public class StartActivity extends Activity {
-	private static final int REQUEST_ENABLE_BT_HUB = 1;
+	private static final int REQUEST_USE_HUB = 1;
 	private static final int REQUEST_ENABLE_BT_DIRECT = 2;
 	private static final int REQUEST_ENABLE_BT_DISCO = 3;
 	private List<Map<String,?>>  mAppList;
@@ -40,7 +46,8 @@ public class StartActivity extends Activity {
 		// connectivity options
 		setContentView(R.layout.choose_carrier);
 		findViewById(R.id.button_xmpp).setOnClickListener(mXmppConnector);
-		findViewById(R.id.button_bluetooth_hub).setOnClickListener(mBluetoothHubConnector);
+		findViewById(R.id.button_lan).setOnClickListener(mLanConnector);
+		findViewById(R.id.button_bluetooth_hub).setOnClickListener(mQRConnector);
 		findViewById(R.id.button_bluetooth).setOnClickListener(mBluetoothConnector);
 		
 		
@@ -80,20 +87,30 @@ public class StartActivity extends Activity {
 	private View.OnClickListener mXmppConnector = new View.OnClickListener() {
 		public void onClick(View arg0) {
 			if (mAppIndex == -1) return;
-			
+			String name = (String)mAppList.get(mAppIndex).get("name");
 			ResolveInfo info = (ResolveInfo) mAppList.get(mAppIndex).get("resolveInfo");
 			Intent launch = new Intent(AndroidJunctionMaker.Intents.ACTION_JOIN);
 			launch.setPackage(info.activityInfo.packageName);
 			
-			XMPPSwitchboardConfig config = new XMPPSwitchboardConfig("sb.openjunction.org");
+			SwitchboardConfig config = new XMPPSwitchboardConfig("sb.openjunction.org");
 			AndroidJunctionMaker jm = AndroidJunctionMaker.getInstance(config);
 			URI invitation = jm.generateSessionUri();
+			startJunctionActivity(name, info, invitation);
+		}
+	};
+	
+	private View.OnClickListener mLanConnector = new View.OnClickListener() {
+		public void onClick(View arg0) {
+			if (mAppIndex == -1) return;
+			String name = (String)mAppList.get(mAppIndex).get("name");
+			ResolveInfo info = (ResolveInfo) mAppList.get(mAppIndex).get("resolveInfo");
+			Intent launch = new Intent(AndroidJunctionMaker.Intents.ACTION_JOIN);
+			launch.setPackage(info.activityInfo.packageName);
 			
-			Intent intentForActivity = AndroidJunctionMaker.getIntentForActivityJoin(invitation);
-			intentForActivity.addCategory(Intents.CATEGORY_BOOTSTRAP);
-			intentForActivity.setClassName(info.activityInfo.packageName, info.activityInfo.name);
-			startActivity(intentForActivity);
-			finish();
+			SwitchboardConfig config = new JXSwitchboardConfig();
+			AndroidJunctionMaker jm = AndroidJunctionMaker.getInstance(config);
+			URI invitation = jm.generateSessionUri();
+			startJunctionActivity(name, info, invitation);
 		}
 	};
 	
@@ -120,16 +137,10 @@ public class StartActivity extends Activity {
 	 * The Bluetooth hub connectivity is currently bootstrapped with a QR code.
 	 * This code is experimental.
 	 */
-	private View.OnClickListener mBluetoothHubConnector = new View.OnClickListener() {
+	private View.OnClickListener mQRConnector = new View.OnClickListener() {
 		public void onClick(View arg0) {
 			if (mAppIndex == -1) return;
-			
-			if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-	            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-	            startActivityForResult(enableIntent, REQUEST_ENABLE_BT_HUB);
-	            return;
-	        }
-			
+
 			startQRScan();
 		}
 	};
@@ -140,25 +151,21 @@ public class StartActivity extends Activity {
 	}
 	
 	private void doBtHub() {
+		String name = (String)mAppList.get(mAppIndex).get("name");
 		ResolveInfo info = (ResolveInfo) mAppList.get(mAppIndex).get("resolveInfo");
 		Intent launch = new Intent(AndroidJunctionMaker.Intents.ACTION_JOIN);
 		launch.setPackage(info.activityInfo.packageName);
 		
 		BluetoothSwitchboardConfig config = new BluetoothSwitchboardConfig();
 		AndroidJunctionMaker jm = AndroidJunctionMaker.getInstance(config);
-		URI invitation = jm.generateSessionUri(); // switchboard set to this device's mac.
-		
-		Intent intentForActivity = AndroidJunctionMaker.getIntentForActivityJoin(invitation);
-		intentForActivity.addCategory(Intents.CATEGORY_BOOTSTRAP);
-		intentForActivity.setClassName(info.activityInfo.packageName, info.activityInfo.name);
-		startActivity(intentForActivity);
-		finish();
+		URI invitation = jm.generateSessionUri(); // switchboard set to this device's mac.		
+		startJunctionActivity(name, info, invitation);
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		
-		if (requestCode == REQUEST_ENABLE_BT_HUB) {
+		if (requestCode == REQUEST_USE_HUB) {
 			if (resultCode == Activity.RESULT_OK) {
 				startQRScan();
 			} else {
@@ -192,15 +199,10 @@ public class StartActivity extends Activity {
 			if (resultCode == Activity.RESULT_OK) {
 		        String contents = intent.getStringExtra("SCAN_RESULT");
 		        try {
-		        	
+		        	String name = (String)mAppList.get(mAppIndex).get("name");
 		        	ResolveInfo info = (ResolveInfo) mAppList.get(mAppIndex).get("resolveInfo");
 					URI invitation = URI.create(contents);
-					Intent intentForActivity = AndroidJunctionMaker.getIntentForActivityJoin(invitation);
-					intentForActivity.addCategory(Intents.CATEGORY_BOOTSTRAP);
-					intentForActivity.setClassName(info.activityInfo.packageName, info.activityInfo.name);
-					startActivity(intentForActivity);
-					finish();
-
+					startJunctionActivity(name, info, invitation);
 		        } catch (Exception m) {
 		        	Log.d("junction", "not a url ",m);
 		        }
@@ -217,5 +219,29 @@ public class StartActivity extends Activity {
 				  intent,
 				  ActivityScan.SCAN_APP,
 				  "Barcode Scanner");
+	}
+	
+	private static int nCount = 0;
+	private void startJunctionActivity(String name, ResolveInfo info, URI invitation) {
+		/*
+		// Notification to interact with activity
+		Intent intentForInvitation = new Intent(this, Invitation.class);
+		intentForInvitation.putExtra("invitationURI", invitation.toString());
+		PendingIntent pending = PendingIntent.getActivity(this, -1, intentForInvitation, Intent.FLAG_ACTIVITY_NEW_TASK);
+		long when = System.currentTimeMillis();
+		Notification notification = new Notification(android.R.drawable.ic_menu_share, "Junction session", when);
+		notification.setLatestEventInfo(this, name + " session", "Invite others to join", pending);
+		
+		NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE); 
+		nm.notify(nCount++, notification);
+		*/
+		
+		Intent intentForActivity = AndroidJunctionMaker.getIntentForActivityJoin(invitation);
+		intentForActivity.addCategory(Intents.CATEGORY_BOOTSTRAP);
+		intentForActivity.setClassName(info.activityInfo.packageName, info.activityInfo.name);
+		intentForActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		
+		startActivity(intentForActivity);
+		finish();
 	}
 }

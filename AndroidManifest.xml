@@ -66,6 +66,10 @@
                 <category android:name="android.intent.category.DEFAULT" /> 
             </intent-filter> 
         </activity> 
+
+        <activity android:name=".Invitation"
+                  android:label="Invitation"> 
+        </activity> 
         
         <activity android:name=".SMSSender"
                   android:label="SMSSender"> 
