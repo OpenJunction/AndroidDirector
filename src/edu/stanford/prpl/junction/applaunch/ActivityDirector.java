@@ -400,9 +400,11 @@ public class ActivityDirector extends Activity {
 		mNfc.onNewIntent(this, intent);
 	}
 	
-	NdefHandler mNdefHandler = new NdefHandler() {		
+	NdefHandler mNdefHandler = new NdefHandler() {	
 		@Override
 		public int handleNdef(NdefMessage[] ndefMessages) {
+			// TODO: Look for junction reference and find and ensure application!
+			
 			NdefRecord record = ndefMessages[0].getRecords()[0];
 			String type = new String(record.getType());
 			if (TYPE_APPMANIFEST.equals(type)) {

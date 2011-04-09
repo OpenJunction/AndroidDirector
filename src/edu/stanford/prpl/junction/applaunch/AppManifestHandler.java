@@ -13,7 +13,10 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ComponentInfo;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,6 +42,9 @@ public class AppManifestHandler extends Activity {
 		// TODO: hack because we have no uri for a tag's payload.
 		if (inbound.hasExtra("content")) {
 			manifestBytes = inbound.getByteArrayExtra("content");
+		} else if ("android.nfc.action.NDEF_DISCOVERED".equals(inbound.getAction())) {
+			Parcelable[] rawMsgs = inbound.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+			manifestBytes = ((NdefMessage)rawMsgs[0]).getRecords()[0].getPayload();
 		} else {
 			Uri manifestUri = inbound.getData();
 			try {
@@ -66,13 +72,10 @@ public class AppManifestHandler extends Activity {
 			}
 		}
 		
-		Log.d("NfcService", "manifest size in bytes: " + manifestBytes.length);
 		manifest = new ApplicationManifest(manifestBytes);
     	List<PlatformReference> platforms = manifest.getPlatformReferences();
     	int i = 0;
-    	Log.d("NfcService", "platform count " + platforms.size());
     	for (PlatformReference platform : platforms) {
-    		Log.d("NfcService", "platform " + platform.getPlatformIdentifier());
     		if (platform.getPlatformIdentifier() == ApplicationManifest.PLATFORM_ANDROID_PACKAGE) {
     			bestAndroidIndex = i;
     		} else if (platform.getPlatformIdentifier() == ApplicationManifest.PLATFORM_WEB_GET) {
@@ -117,7 +120,6 @@ public class AppManifestHandler extends Activity {
     	}
 	
 		Toast.makeText(this, "No usable platform found.", Toast.LENGTH_SHORT).show();
-    	
     	finish();
 	}
 }

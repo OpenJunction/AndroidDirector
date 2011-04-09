@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 public class JoinNearby extends ListActivity {
 	private BluetoothAdapter mBtAdapter;
@@ -121,13 +122,14 @@ public class JoinNearby extends ListActivity {
     		
     		mBtAdapter.cancelDiscovery();
     		
-    		String jxInvite;
+    		String jxInvite = null;
     		String txt = ((TextView) v).getText().toString();
     		if (txt.startsWith("junction://")) {
     			jxInvite = txt;
     		} else {
     			// TODO: can we check to see if the app UUID is supported?
-    			jxInvite = "junction://" + mDeviceAddresses.get(pos) + "/" + BluetoothSwitchboardConfig.APP_UUID + "#bt";
+    			//jxInvite = "junction://" + mDeviceAddresses.get(pos) + "/" + BluetoothSwitchboardConfig.APP_UUID + "#bt";
+    			Toast.makeText(JoinNearby.this, "Junction session not available.", Toast.LENGTH_SHORT).show();
     		}
 
     		try {

@@ -86,7 +86,12 @@
        			<category android:name="android.intent.category.DEFAULT"></category>                        
         		<category android:name="android.intent.category.BROWSABLE"></category>                      
                 <data android:scheme="junction" /> 
-            </intent-filter> 
+            </intent-filter>
+            <intent-filter> 
+            	<action android:name="android.nfc.action.NDEF_DISCOVERED"></action>                                 
+       			<category android:name="android.intent.category.DEFAULT"></category>                                              
+                <data android:scheme="junction" /> 
+            </intent-filter>  
         </activity> 
         
         <activity android:name=".AppManifestHandler"
@@ -95,6 +100,12 @@
             	<action android:name="android.intent.action.VIEW"></action>                                 
        			<category android:name="android.intent.category.DEFAULT"></category>                        
         		<category android:name="android.intent.category.BROWSABLE"></category>                      
+                <data android:mimeType="application/vnd.mobisocial-appmanifest" /> 
+            </intent-filter> 
+            
+            <intent-filter> 
+            	<action android:name="android.nfc.action.NDEF_DISCOVERED"></action>                                 
+       			<category android:name="android.intent.category.DEFAULT"></category>                     
                 <data android:mimeType="application/vnd.mobisocial-appmanifest" /> 
             </intent-filter> 
         </activity>
